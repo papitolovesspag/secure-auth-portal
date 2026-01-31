@@ -40,13 +40,13 @@ app.use((req, res, next) => {
 let db;
 if (process.env.DATABASE_URL) {
   // PRODUCTION (Render)
-  db = new pg.Pool({ // <--- CHANGED FROM Client TO Pool
+  db = new pg.Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false }
   });
 } else {
   // LOCAL (Your Laptop)
-  db = new pg.Pool({ // <--- CHANGED FROM Client TO Pool
+  db = new pg.Pool({
     user: process.env.PG_USER,
     host: process.env.PG_HOST,
     database: process.env.PG_DATABASE,
@@ -54,11 +54,26 @@ if (process.env.DATABASE_URL) {
     port: process.env.PG_PORT,
   });
 }
-// db.connect(); <--- DELETE THIS LINE (Pools connect automatically)
+
+// --- AUTO-CREATE TABLE (Runs on BOTH Render and Local) ---
+db.query(`
+  CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(100),
+    secret TEXT
+  );
+`, (err, res) => {
+  if (err) {
+    console.error("Error checking/creating 'users' table:", err);
+  } else {
+    console.log("✅ Database table 'users' is ready.");
+  }
+});
+
 
 app.use(
   session({
-    // Tell it to store sessions in our Postgres DB
     store: new PostgresqlStore({
       pool: db, // Connects to our new pg.Pool
       createTableIfMissing: true // Automatically creates the "session" table
