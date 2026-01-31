@@ -51,18 +51,28 @@ Ensure you have the following installed:
 
 ### 2. Clone the Repository
 ```bash```
+
 `git clone [https://github.com/papitolovesspag/secure-auth-portal.git](https://github.com/papitolovesspag/secure-auth-portal.git)`
+
 `cd secure-auth-portal`
+
 3. Install Dependencies
+
 Bash
 npm install
-4. Database Configuration
+
+5. Database Configuration
+
 You must create a local database before running the app. Open your terminal (or pgAdmin) and run:
 
 SQL
+
 psql -U postgres
+
 CREATE DATABASE secrets;
+
 \q
+
 (Note: The application will automatically create the required Tables inside this database when it starts.)
 
 5. Environment Variables
@@ -72,22 +82,27 @@ Add the following configuration to .env:
 
 Code snippet
 # Database Config
-PG_USER=postgres
-PG_HOST=localhost
-PG_DATABASE=secrets
-PG_PASSWORD=your_postgres_password
-PG_PORT=5432
+# PG_USER=postgres
+# PG_HOST=localhost
+# PG_DATABASE=secrets
+# PG_PASSWORD=your_postgres_password
+# PG_PORT=5432
 
 # Session Security
-SESSION_SECRET=type_anything_random_here_to_secure_cookies
+# SESSION_SECRET=type_anything_random_here_to_secure_cookies
 
 # Google OAuth 2.0 (Required for Google Login)
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
+# GOOGLE_CLIENT_ID=your_google_client_id
+# GOOGLE_CLIENT_SECRET=your_google_client_secret
+
 6. Run the Application
+   
 Bash
+
 node index.js
+
 The server will start on port 3000.
+
 
 Open your browser and visit: http://localhost:3000
 
