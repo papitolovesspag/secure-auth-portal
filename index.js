@@ -7,7 +7,9 @@ import { Strategy } from "passport-local";
 import GoogleStrategy from "passport-google-oauth2";
 import session from "express-session";
 import env from "dotenv";
-import flash from "connect-flash"; // <--- NEW IMPORT
+import flash from "connect-flash";
+import connectPg from "connect-pg-simple"; // <--- NEW
+const PostgresqlStore = connectPg(session); // <--- NEW
 
 const app = express();
 const port = 3000;
@@ -38,13 +40,13 @@ app.use((req, res, next) => {
 let db;
 if (process.env.DATABASE_URL) {
   // PRODUCTION (Render)
-  db = new pg.Client({
+  db = new pg.Pool({ // <--- CHANGED FROM Client TO Pool
     connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false } // Required for Render
+    ssl: { rejectUnauthorized: false }
   });
 } else {
   // LOCAL (Your Laptop)
-  db = new pg.Client({
+  db = new pg.Pool({ // <--- CHANGED FROM Client TO Pool
     user: process.env.PG_USER,
     host: process.env.PG_HOST,
     database: process.env.PG_DATABASE,
@@ -52,7 +54,23 @@ if (process.env.DATABASE_URL) {
     port: process.env.PG_PORT,
   });
 }
-db.connect();
+// db.connect(); <--- DELETE THIS LINE (Pools connect automatically)
+
+app.use(
+  session({
+    // Tell it to store sessions in our Postgres DB
+    store: new PostgresqlStore({
+      pool: db, // Connects to our new pg.Pool
+      createTableIfMissing: true // Automatically creates the "session" table
+    }),
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false, // Changed to false (Best practice for login systems)
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24 // 1 Day
+    }
+  })
+);
 
 // --- ROUTES ---
 
