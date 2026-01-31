@@ -34,13 +34,24 @@ app.use((req, res, next) => {
   next();
 });
 
-const db = new pg.Client({
-  user: process.env.PG_USER,
-  host: process.env.PG_HOST,
-  database: process.env.PG_DATABASE,
-  password: process.env.PG_PASSWORD,
-  port: process.env.PG_PORT,
-});
+// --- DATABASE CONNECTION ---
+let db;
+if (process.env.DATABASE_URL) {
+  // PRODUCTION (Render)
+  db = new pg.Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false } // Required for Render
+  });
+} else {
+  // LOCAL (Your Laptop)
+  db = new pg.Client({
+    user: process.env.PG_USER,
+    host: process.env.PG_HOST,
+    database: process.env.PG_DATABASE,
+    password: process.env.PG_PASSWORD,
+    port: process.env.PG_PORT,
+  });
+}
 db.connect();
 
 // --- ROUTES ---
@@ -215,7 +226,10 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "http://localhost:3000/auth/google/secrets",
+      // DYNAMIC CALLBACK URL
+      callbackURL: process.env.NODE_ENV === "production" 
+        ? "https://secure-auth-portal.onrender.com/auth/google/secrets" // We will get this URL soon
+        : "http://localhost:3000/auth/google/secrets",
       userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
     },
     async (accessToken, refreshToken, profile, cb) => {
