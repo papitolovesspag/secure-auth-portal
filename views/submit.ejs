@@ -1,0 +1,37 @@
+<%- include('partials/header') %>
+
+<div class="auth-container">
+    <div class="secure-card">
+        
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <i class="fa-solid fa-pen-to-square" style="font-size: 3rem; color: #fff;"></i>
+        </div>
+
+        <h1>Submit Identity Log</h1>
+        <p class="subtitle">This data will be encrypted and stored in your record.</p>
+
+        <form action="/submit" method="POST">
+            <div class="form-group">
+                <textarea 
+                    class="form-control" 
+                    name="secret" 
+                    placeholder="Enter your confidential data here..." 
+                    rows="4" 
+                    style="resize: none; background: #000; color: white; border: 1px solid #333;"
+                    required
+                ></textarea>
+            </div>
+            
+            <button type="submit" class="btn-primary">
+                <i class="fa-solid fa-floppy-disk"></i> Save Record
+            </button>
+        </form>
+        
+        <div style="margin-top: 1.5rem; text-align: center;">
+             <a href="/secrets" style="color: #666; font-size: 0.9rem; text-decoration: none;">Cancel Operation</a>
+        </div>
+
+    </div>
+</div>
+
+<%- include('partials/footer') %>
